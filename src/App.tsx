@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import "./App.scss";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
@@ -7,6 +7,7 @@ import SaveIcon from "@mui/icons-material/Save";
 import { Button, Chip, Divider, TextField, IconButton } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import Accordion from "@mui/material/Accordion";
+import DeleteIcon from "@mui/icons-material/Delete";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import Typography from "@mui/material/Typography";
@@ -27,17 +28,19 @@ interface IFormInput {
 
 const schema = Joi.object({
   title: Joi.string().required(),
-  description: Joi.string().optional()
+  description: Joi.string().allow("").optional()
 });
 
 function App () {
   const [notes, setNotes] = useState<Note[]>([]);
 
-  chrome.storage?.local.get("notes").then((notesTemp) => {
-    if (Array.isArray(notesTemp)) {
-      setNotes(notesTemp);
-    }
-  });
+  useEffect(() => {
+    chrome.storage?.sync.get(["notes"], (items) => {
+      if (items.notes && notes.length === 0) {
+        setNotes(JSON.parse(items.notes));
+      }
+    });
+  }, []);
 
   const [filter, setFilter] = useState("");
   const notesFiltered = useMemo(() => {
@@ -48,16 +51,43 @@ function App () {
     return notes.find((note) => note.id === id);
   };
 
-  const onSubmit = async (data: IFormInput) => {
+  const deleteNoteById = (id: string | number) => {
+    const newNotes = notes.filter(note => note.id !== id);
+    setNotes(newNotes);
+  };
+
+  const addNote = async (data: IFormInput) => {
     notes.push({
       id: notes.length + 1,
       title: data.title,
       description: data.description
     });
-    await chrome.storage?.local.set({ notes: JSON.stringify(notes) });
+    chrome.storage?.sync.set({ notes: JSON.stringify(notes) });
+  };
+
+  const updateNote = async (data: IFormInput) => {
+    notes.forEach((note) => {
+      if (note.id === editNoteId) {
+        note.title = data.title;
+        note.description = data.description;
+      }
+    });
+    chrome.storage?.sync.set({ notes: JSON.stringify(notes) });
+  };
+
+  const resetDefault = () => {
     reset();
     setEditNoteId(null);
     setCreateModalOpen(false);
+  };
+
+  const onSubmit = async (data: IFormInput) => {
+    if (editNoteId) {
+      updateNote(data);
+    } else {
+      addNote(data);
+    }
+    resetDefault();
   };
 
   const { control, handleSubmit, setValue, reset } = useForm<IFormInput>({
@@ -97,8 +127,6 @@ function App () {
     );
   };
 
-  // const [expandedNotesIds, setExpandedNotesIds] = useState<Record<string, boolean>[]>([]);
-
   const expandedNotesIds: Record<string | number, boolean> = {};
 
   const handleExpandedNotesChange = (id: number | string) => {
@@ -127,20 +155,24 @@ function App () {
                   </Typography>
                 </AccordionSummary>
                 <AccordionDetails className="notepad-list-item-accordion-details">
-                  <Typography fontSize={"14px"}>
+                  <Typography >
                     {note.description}
                   </Typography>
                 </AccordionDetails>
               </Accordion>
-              <IconButton className="notepad-list-item-button" color="primary" aria-label="upload picture" component="label"
-                onClick={() => {
-                  if (note.id !== editNoteId) { setCreateModalOpen(true); setEditNoteId(note.id); } else {
-                    setCreateModalOpen(false); setEditNoteId(null);
-                  }
-                }}>
-                { note.id !== editNoteId ? <EditIcon className="notepad-list-item-button-edit-icon" /> : <CloseIcon className="notepad-list-item-button-edit-icon"/>}
-              </IconButton>
-
+              <div className="notepad-list-item-buttons" >
+                <IconButton color="primary" aria-label="upload picture" component="label"
+                  onClick={() => {
+                    if (note.id !== editNoteId) { setCreateModalOpen(true); setEditNoteId(note.id); } else {
+                      resetDefault();
+                    }
+                  }}>
+                  { note.id !== editNoteId ? <EditIcon className="notepad-list-item-buttons-edit-icon" /> : <CloseIcon className="notepad-list-item-buttons-edit-icon"/>}
+                </IconButton>
+                <IconButton color="primary" aria-label="upload picture" component="label" onClick={() => { if (confirm("Delete note?")) { deleteNoteById(note.id); } }}>
+                  <DeleteIcon className="notepad-list-item-buttons-delete-icon"/>
+                </IconButton>
+              </div>
             </div>
           );
         })}
@@ -156,10 +188,10 @@ function App () {
           <TextField size="small" id="outlined-search" label="Search..." type="search" className="notepad-control-panel-top-search" onChange={(e) => { setFilter(e.target.value); }}/>
           { !createModalOpen
             ? <IconButton color="primary" aria-label="upload picture" component="label" onClick={() => setCreateModalOpen(true)}>
-              <AddIcon className="notepad-control-panel-top-add-remove-icon" fontSize="large" />
+              <AddIcon className="notepad-control-panel-top-add-open" fontSize="large" />
             </IconButton>
             : <IconButton color="primary" aria-label="upload picture" component="label" onClick={() => { reset(); setEditNoteId(null); setCreateModalOpen(false); }}>
-              <RemoveIcon className="notepad-control-panel-top-add-remove-icon" fontSize="large" />
+              <RemoveIcon className="notepad-control-panel-top-add-close" fontSize="large" />
             </IconButton>
           }
         </div>

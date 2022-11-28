@@ -13,10 +13,13 @@
       justify-content: space-around;
       gap: 10px;
       &-search {
-        width: 75%;
+        width: 70%;
       }
-      &-add-remove-icon {
-        color: #84a3d3 !important;
+      &-add-open {
+        color: #56b85e !important;
+      }
+      &-add-close {
+        color: #fe5957 !important;
       }
     }
     &-create-modal {
@@ -55,7 +58,7 @@
       &-accordion {
         display: inline-flex;
         flex-direction: column;
-        width: 75%;
+        width: 100%;
         &-summary {
           display: flex;
           background-color: #84a3d3 !important;
@@ -67,10 +70,13 @@
           background-color: #f5f1e6 !important;
         }
       }
-      &-button {
+      &-buttons {
         display: inline-flex;
         &-edit-icon {
-          color: #84a3d3 !important;
+          color: #ffb400 !important;
+        }
+        &-delete-icon {
+          color: #fe5957 !important;
         }
       }
     }
