@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "Notepad",
+  "description": "Notepad extension",
+  "version": "1.0",
+  "action": {
+    "default_popup": "index.html",
+    "default_icon": "notepad.png"
+  },
+  "permissions": [
+    "activeTab",
+    "storage"
+  ]
+}

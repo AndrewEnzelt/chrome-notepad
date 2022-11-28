@@ -1,0 +1,79 @@
+.notepad {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  &-control-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    &-top {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-around;
+      gap: 10px;
+      &-search {
+        width: 75%;
+      }
+      &-add-remove-icon {
+        color: #84a3d3 !important;
+      }
+    }
+    &-create-modal {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      gap: 10px;
+      &-form {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        gap: 10px;
+        &-item {
+          display: inline-flex;
+        }
+        &-button {
+          color: #84a3d3 !important;
+        }
+      }
+    }
+  }
+
+  &-list {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+    overflow-y: auto;
+    &-item {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-around;
+      gap: 10px;
+      width: 100%;
+      &-accordion {
+        display: inline-flex;
+        flex-direction: column;
+        width: 75%;
+        &-summary {
+          display: flex;
+          background-color: #84a3d3 !important;
+          color: white !important;
+          &-expand-icon {
+          }
+        }
+        &-details {
+          background-color: #f5f1e6 !important;
+        }
+      }
+      &-button {
+        display: inline-flex;
+        &-edit-icon {
+          color: #84a3d3 !important;
+        }
+      }
+    }
+  }
+}
+
