@@ -1,19 +1,11 @@
+.divider {
+  padding: 10px;
+}
 .notepad {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
   &-control-panel {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
     &-top {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-around;
-      gap: 10px;
       &-search {
-        width: 70%;
+        width: 300px;
       }
       &-add-open {
         color: #56b85e !important;
@@ -23,15 +15,10 @@
       }
     }
     &-create-modal {
-      display: flex;
-      flex-direction: column;
-      justify-content: space-around;
-      gap: 10px;
       &-form {
-        display: flex;
-        flex-direction: column;
-        justify-content: space-around;
-        gap: 10px;
+        &-input {
+          padding-bottom: 10px !important;
+        }
         &-item {
           display: inline-flex;
         }
@@ -41,26 +28,13 @@
       }
     }
   }
-
   &-list {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-around;
     overflow-y: auto;
     &-item {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-around;
-      gap: 10px;
-      width: 100%;
+      width: 300px;
       &-accordion {
-        display: inline-flex;
-        flex-direction: column;
-        width: 100%;
         &-summary {
-          display: flex;
+          width: 300px;
           background-color: #84a3d3 !important;
           color: white !important;
           &-expand-icon {
@@ -71,7 +45,6 @@
         }
       }
       &-buttons {
-        display: inline-flex;
         &-edit-icon {
           color: #ffb400 !important;
         }

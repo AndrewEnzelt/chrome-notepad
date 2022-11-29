@@ -4,7 +4,7 @@ import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import CloseIcon from "@mui/icons-material/Close";
 import SaveIcon from "@mui/icons-material/Save";
-import { Button, Chip, Divider, TextField, IconButton } from "@mui/material";
+import { Button, Chip, Divider, TextField, IconButton, Grid } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import Accordion from "@mui/material/Accordion";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -44,7 +44,7 @@ function App () {
 
   const [filter, setFilter] = useState("");
   const notesFiltered = useMemo(() => {
-    return notes.filter(note => note.title.includes(filter) || note.description.includes(filter));
+    return notes.filter(note => note.title.toLowerCase().includes(filter.toLowerCase()) || note.description.toLowerCase().includes(filter.toLowerCase()));
   }, [filter, JSON.stringify(notes)]);
 
   const getNoteById = (id: string | number) => {
@@ -106,24 +106,34 @@ function App () {
       setValue("description", note.description);
     }
     return (
-      <div className="notepad-control-panel-create-modal">
-        <Divider><Chip label={ (!editNoteId ? "CREATE" : "UPDATE") + " NOTE" }/></Divider>
+      <Grid
+        direction="column"
+        justifyContent="center"
+        alignItems="stretch" className="notepad-control-panel-create-modal">
+        <Divider className="divider" textAlign="center"><Chip label={ (!editNoteId ? "CREATE" : "UPDATE") + " NOTE" }/></Divider>
         <form className="notepad-control-panel-create-modal-form" onSubmit={handleSubmit(onSubmit)}>
-          <Controller
-            name="title"
-            control={control}
-            defaultValue=""
-            render={({ field }) => <TextField size="small" required label="Title" {...field}/>}
-          />
-          <Controller
-            name="description"
-            control={control}
-            defaultValue=""
-            render={({ field }) => <TextField size="small" multiline rows={4} label="Description" {...field}/>}
-          />
-          <Button className="notepad-control-panel-create-modal-form-button" variant="outlined" endIcon={<SaveIcon className="notepad-control-panel-create-modal-form-button-save-icon"/>} type="submit">{!editNoteId ? "CREATE" : "UPDATE"}</Button>
+          <Grid
+            container
+            direction="column"
+            justifyContent="center"
+            alignItems="stretch">
+            <Controller
+              name="title"
+              control={control}
+              defaultValue=""
+              render={({ field }) => <TextField className="notepad-control-panel-create-modal-form-input" size="small" required label="Title" {...field}/>}
+            />
+            <Controller
+              name="description"
+              control={control}
+              defaultValue=""
+              render={({ field }) => <TextField className="notepad-control-panel-create-modal-form-input" size="small" multiline rows={4} label="Description" {...field}/>}
+            />
+            <Button className="notepad-control-panel-create-modal-form-button" variant="outlined" endIcon={<SaveIcon className="notepad-control-panel-create-modal-form-button-save-icon"/>} type="submit">{!editNoteId ? "CREATE" : "UPDATE"}</Button>
+          </Grid>
+
         </form>
-      </div>
+      </Grid>
     );
   };
 
@@ -139,11 +149,17 @@ function App () {
 
   const notesList = () => {
     return (
-      <div className="notepad-list">
+      <Grid container
+        direction="column"
+        justifyContent="center"
+        alignItems="center" className="notepad-list">
         {notesFiltered.map(note => {
           return (
-            <div key={note.id} className="notepad-list-item">
-              <Accordion square={false} className="notepad-list-item-accordion" draggable expanded={expandedNotesIds[note.id]} onChange={ () => handleExpandedNotesChange(note.id)}>
+            <Grid
+              container
+              justifyContent="space-between"
+              alignItems="stretch" key={note.id} className="notepad-list-item">
+              <Accordion square={false} className="notepad-list-item-accordion" expanded={expandedNotesIds[note.id]} onChange={ () => handleExpandedNotesChange(note.id)}>
                 <AccordionSummary
                   className="notepad-list-item-accordion-summary"
                   expandIcon={<ExpandMoreIcon className="notepad-list-item-accordion-summary-expand-icon"/>}
@@ -160,7 +176,9 @@ function App () {
                   </Typography>
                 </AccordionDetails>
               </Accordion>
-              <div className="notepad-list-item-buttons" >
+              <Grid
+                justifyContent="space-around"
+                alignItems="stretch" className="notepad-list-item-buttons" >
                 <IconButton color="primary" aria-label="upload picture" component="label"
                   onClick={() => {
                     if (note.id !== editNoteId) { setCreateModalOpen(true); setEditNoteId(note.id); } else {
@@ -172,19 +190,31 @@ function App () {
                 <IconButton color="primary" aria-label="upload picture" component="label" onClick={() => { if (confirm("Delete note?")) { deleteNoteById(note.id); } }}>
                   <DeleteIcon className="notepad-list-item-buttons-delete-icon"/>
                 </IconButton>
-              </div>
-            </div>
+              </Grid>
+            </Grid>
           );
         })}
-      </div>
+      </Grid>
     );
   };
 
   return (
-    <div className="notepad">
-      <Divider textAlign="left"><Chip className="notepad-header-chip" label="NOTEPAD"/></Divider>
-      <div className="notepad-control-panel">
-        <div className="notepad-control-panel-top">
+    <Grid
+      padding={1}
+      container
+      direction="column"
+      justifyContent="center"
+      alignItems="stretch"
+    >
+      <Divider className="divider" textAlign="left"><Chip className="notepad-header-chip" label="NOTEPAD"/></Divider>
+      <Grid container
+        direction="column"
+        justifyContent="center"
+        alignItems="stretch" className="notepad-control-panel">
+        <Grid container
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center" className="notepad-control-panel-top">
           <TextField size="small" id="outlined-search" label="Search..." type="search" className="notepad-control-panel-top-search" onChange={(e) => { setFilter(e.target.value); }}/>
           { !createModalOpen
             ? <IconButton color="primary" aria-label="upload picture" component="label" onClick={() => setCreateModalOpen(true)}>
@@ -194,12 +224,12 @@ function App () {
               <RemoveIcon className="notepad-control-panel-top-add-close" fontSize="large" />
             </IconButton>
           }
-        </div>
+        </Grid>
         { createModalOpen ? createUpdateModal() : null}
-        <Divider />
-      </div>
+        <Divider className="divider" textAlign="right"><Chip label="NOTE LIST"/></Divider>
+      </Grid>
       { notesList() }
-    </div>
+    </Grid>
   );
 }
 
