@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import "./App.scss";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
@@ -57,22 +57,25 @@ function App () {
   };
 
   const addNote = async (data: IFormInput) => {
+    const id = notes.length + 1;
     notes.push({
-      id: notes.length + 1,
+      id,
       title: data.title,
       description: data.description
     });
-    chrome.storage?.sync.set({ notes: JSON.stringify(notes) });
+    return id;
   };
 
   const updateNote = async (data: IFormInput) => {
+    let id = null;
     notes.forEach((note) => {
       if (note.id === editNoteId) {
         note.title = data.title;
         note.description = data.description;
+        id = note.id;
       }
     });
-    chrome.storage?.sync.set({ notes: JSON.stringify(notes) });
+    return id;
   };
 
   const resetDefault = () => {
@@ -82,11 +85,14 @@ function App () {
   };
 
   const onSubmit = async (data: IFormInput) => {
+    let id: string | number | null;
     if (editNoteId) {
-      updateNote(data);
+      id = await updateNote(data);
     } else {
-      addNote(data);
+      id = await addNote(data);
     }
+    chrome.storage?.sync.set({ notes: JSON.stringify(notes) });
+    setCreatedEditedNoteId(id);
     resetDefault();
   };
 
@@ -97,6 +103,18 @@ function App () {
   const [createModalOpen, setCreateModalOpen] = useState(false);
 
   const [editNoteId, setEditNoteId] = useState<number | string | null>(null);
+  const [createdEditedNoteId, setCreatedEditedNoteId] = useState<number | string | null>(null);
+
+  const handleScroll = (ref: any) => {
+    window.scrollTo({
+      top: ref,
+      left: 0,
+      behavior: "smooth"
+    });
+  };
+
+  const createUpdateModalRef = useRef(null);
+  const editedNoteRef = useRef(null);
 
   const createUpdateModal = () => {
     if (editNoteId) {
@@ -107,6 +125,7 @@ function App () {
     }
     return (
       <Grid
+        ref={createUpdateModalRef}
         direction="column"
         justifyContent="center"
         alignItems="stretch" className="notepad-control-panel-create-modal">
@@ -156,6 +175,7 @@ function App () {
         {notesFiltered.map(note => {
           return (
             <Grid
+              ref={createdEditedNoteId === note.id ? editedNoteRef : null}
               container
               justifyContent="space-between"
               alignItems="stretch" key={note.id} className="notepad-list-item">
@@ -166,12 +186,12 @@ function App () {
                   aria-controls="panel1bh-content"
                   id="panel1bh-header"
                 >
-                  <Typography sx={{ width: "33%", flexShrink: 0 }}>
+                  <Typography noWrap sx={{ width: "66%", flexShrink: 0 }}>
                     {note.title}
                   </Typography>
                 </AccordionSummary>
                 <AccordionDetails className="notepad-list-item-accordion-details">
-                  <Typography >
+                  <Typography>
                     {note.description}
                   </Typography>
                 </AccordionDetails>
@@ -181,7 +201,7 @@ function App () {
                 alignItems="stretch" className="notepad-list-item-buttons" >
                 <IconButton color="primary" aria-label="upload picture" component="label"
                   onClick={() => {
-                    if (note.id !== editNoteId) { setCreateModalOpen(true); setEditNoteId(note.id); } else {
+                    if (note.id !== editNoteId) { handleScroll(createUpdateModalRef.current); setCreateModalOpen(true); setEditNoteId(note.id); } else {
                       resetDefault();
                     }
                   }}>
